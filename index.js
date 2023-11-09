@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken')
 require('dotenv').config() ;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { object } = require('webidl-conversions');
@@ -41,7 +42,13 @@ async function run() {
 
    const addAItemCollections = client.db('restaurantDB').collection('addAItem')
 
-
+    // auth relared API:
+    app.post('/jwt', async(req,res) =>{
+      const user = req.body ;
+      console.log(user) ;
+      const token = jwt.sign(user, 'secret', {expiresIn:'1h'})
+      res.send(token)
+    })
 
    //top food sections 
    app.get('/foodItems', async(req,res) =>{
