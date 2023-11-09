@@ -131,6 +131,7 @@ async function run() {
     }
   
     const result = await addAItemCollections.updateOne(filter,item,options) 
+    res.send(result)
    })
 
   
