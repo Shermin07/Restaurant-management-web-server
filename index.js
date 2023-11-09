@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config() ;
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const { object } = require('webidl-conversions');
 const app = express();
 const port = process.env.PORT || 5000 ;
 
@@ -38,6 +39,8 @@ async function run() {
    const allFoodCollections = client.db('restaurantDB').collection('allFoodItems')
    const purchaseCollections = client.db('restaurantDB').collection('foodPurchase')
 
+   const addAItemCollections = client.db('restaurantDB').collection('addAItem')
+
 
 
    //top food sections 
@@ -73,6 +76,57 @@ async function run() {
      res.send(result) ;
 
    })
+
+   // purchase get method:
+   app.get('/foodPurchase', async(req,res) =>{
+    const cursor = purchaseCollections.find();
+    const result = await cursor.toArray();
+    res.send(result);
+   })
+
+   // delete from my cart:
+   app.delete('/foodPurchase/:id', async (req,res) =>{
+    const id = req.params.id ;
+    const query = {_id : new ObjectId(id)}
+    const result = await purchaseCollections.deleteOne(query);
+    res.send(result);
+  })
+
+    //add a item get method
+    app.get('/addFoodItem', async(req,res) =>{
+      const cursor = addAItemCollections.find();
+      const result = await cursor.toArray();
+      res.send(result);
+     })
+   // add a item
+   app.post('/addFoodItem', async (req,res) =>{
+    const addItem = req.body ;
+    const result = await addAItemCollections.insertOne(addItem)
+    res.send(result) ;
+   })
+   // update:
+   app.put('/addFoodItem/:id', async(req,res) =>{
+    
+    const id = req.params.id ;
+    const filter = {_id: new ObjectId(id)}
+    const options = {upsert:true}
+    const updatedItem = req.body ;
+    const item = {
+      $set :{
+        foodName :updatedItem.foodName,
+        price : updatedItem.price,
+        category: updatedItem.category,
+        email:updatedItem.email,
+        origin:updatedItem.origin,
+        photo:updatedItem.photo
+
+      }
+    }
+  
+    const result = await addAItemCollections.updateOne(filter,item,options) 
+   })
+
+  
    
 
 
